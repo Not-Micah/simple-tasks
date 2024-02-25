@@ -1,0 +1,452 @@
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import Thread threading.Thread
+#:import Clock kivy.clock.Clock
+
+<BackgroundDialog>:
+    orientation: "vertical"
+    spacing: dp(0)
+    size_hint: 1, None
+    height: dp(325)
+
+    MDGridLayout:
+        cols: 2
+        rows: 3
+        spacing: dp(30), dp(30)
+        padding: dp(25), dp(35)
+        id: backgrounds
+
+<Card>:
+    id: card
+    elevation: 0
+    size_hint: 1, None
+    height: dp(100)
+    md_bg_color: "FFFFFF"
+    orientation: "horizontal"
+
+    MDFloatLayout:
+
+        MDCheckbox:
+            id: complete
+            size_hint: None, None
+            ripple_scale: 0
+            pos_hint: {"x": .0275, "center_y": .5}
+            padding: dp(20), dp(0)
+            on_release:
+                # Thread(target=app.save_checkbox_edits, args=card)
+                app.save_checkbox_edits(card)
+                
+        MDLabel:
+            id: task
+            markup: True
+            font_name: "seguiemj.ttf"
+            font_size: dp(20)
+            pos_hint: {"x": .225, "center_y": .6}
+
+        # DUE DATE LABEL
+        MDLabel:
+            id: date
+            markup: True
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": .224, "center_y": .35}
+
+        # SETTINGS BUTTON
+        MDIconButton:
+            icon: "dots-vertical"
+            pos_hint: {"center_x": .92, "center_y": .5}
+            font_size: dp(20)
+            on_press:
+                app.open_edit_task_dialogue(task.text, date.name)
+                app.current_task = card
+
+<DialogBox>:
+    orientation: "vertical"
+    spacing: dp(10)
+    size_hint: 1, None
+    height: dp(300)
+
+    MDFloatLayout:
+        MDTextField:
+            id: task_text
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": .001, "center_y": .92}
+            max_text_length: 20
+
+        MDLabel:
+            id: task_date
+            color: "9f9f9f"
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": .001, "center_y": .67}
+
+        MDIconButton:
+            theme_icon_color: "Custom"
+            icon: "calendar"
+            icon_color: "#9f9f9f"
+            pos_hint: {"x": .85, "center_y": .67}
+            on_press: app.open_date_picker()
+
+        MDTextField:
+            id: task_desc
+            hint_text: "Short Description"
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": 0.001, "center_y": .37}
+            max_text_length: 40
+
+        MDRaisedButton:
+            text: "SAVE"
+            pos_hint: {"x": 0.001, "center_y": .12}
+            on_release: app.save_task_edits(task_text.text, task_date.text)
+            elevation: 0
+
+        MDFlatButton:
+            text: "CANCEL"
+            pos_hint: {"x": 0.45, "center_y": .12}
+            on_release: app.active_dialog.dismiss()
+
+        MDIconButton:
+            theme_icon_color: "Custom"
+            icon: "trash-can-outline"
+            icon_color: "#ff0000"
+            pos_hint: {"x": 0.85, "center_y": .12}
+            on_release: app.delete_task()
+
+<CreateTaskDialog>:
+    orientation: "vertical"
+    spacing: dp(10)
+    size_hint: 1, None
+    height: dp(300)
+
+    MDFloatLayout:
+        MDTextField:
+            id: task_text
+            hint_text: "Task Name"
+            max_text_length: 20
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": .001, "center_y": .92}
+
+        MDLabel:
+            id: task_date
+            text: "Date"
+            color: "#9f9f9f"
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": .001, "center_y": .67}
+
+        MDIconButton:
+            theme_icon_color: "Custom"
+            icon: "calendar"
+            icon_color: "#9f9f9f"
+            pos_hint: {"x": .85, "center_y": .67}
+            on_press: app.open_date_picker()
+
+        MDTextField:
+            id: task_desc
+            hint_text: "Short Description"
+            font_name: "seguiemj.ttf"
+            pos_hint: {"x": 0.001, "center_y": .37}
+            max_text_length: 40
+
+        MDRaisedButton:
+            text: "SAVE"
+            pos_hint: {"x": 0.001, "center_y": .12}
+            on_release: app.create_task()
+            elevation: 0
+
+        MDFlatButton:
+            text: "CANCEL"
+            pos_hint: {"x": 0.45, "center_y": .12}
+            on_release: app.active_dialog.dismiss()
+
+<CircleButton>:
+    Button: 
+        id: hidden_button
+        size_hint: 1, 1
+        pos_hint: {"center_x":.5, "center_y":.5}
+        background_color: [0,0,0,0]
+        opacity: 0
+        
+    Label:
+        id: date
+        font_size: "15sp"
+        pos_hint: {"center_x":.5, "center_y":.5}
+        halign: "center"
+
+<LevitatingCircle>:
+    Button:
+        id: date_button
+        color: 0, 0, 0, 0
+        background_color: 0, 0, 0, 0
+        pos_hint: {"center_x": .5, "center_y": .5}
+        on_press: None
+
+    Image:
+        source: "circles/task_circle.png"
+        size_hint: None, None
+        width: dp(8)
+        height: dp(8)
+        pos_hint: {"center_x": .5, "center_y": .275}
+
+    Label:
+        id: date_label
+        font_size: "15sp"
+        color: 0, 0, 0, 1
+        pos_hint: {"center_x": .5, "center_y": .5}
+
+<CreateQuickToDo>:
+    orientation: "vertical"
+    spacing: dp(10)
+    size_hint: 1, None
+    adaptive_height: True
+    height: dp(130)
+
+    MDFloatLayout:
+        MDTextField:
+            id: quick_todo
+            hint_text: "Enter Task"
+            max_text_length: 50
+            pos_hint: {"center_x":.5 , "center_y":.85}
+
+        MDRaisedButton:
+            text: "SAVE"
+            pos_hint: {"x": 0.001, "center_y": .3}
+            on_release: app.create_qt(quick_todo.text)
+            elevation: 0
+
+        MDFlatButton:
+            text: "CANCEL"
+            pos_hint: {"x": 0.45, "center_y": .3}
+            on_release: app.active_dialog.dismiss()
+
+<EditQuickToDo>:
+    orientation: "vertical"
+    spacing: dp(10)
+    size_hint: 1, None
+    adaptive_height: True
+    height: dp(130)
+
+    MDFloatLayout:
+        MDTextField:
+            id: task_desc
+            hint_text: "Edit Task"
+            max_text_length: 50
+            pos_hint: {"center_x":.5 , "center_y":.85}
+
+        MDRaisedButton:
+            text: "SAVE"
+            pos_hint: {"x": 0.001, "center_y": .25}
+            on_press: app.save_qt_edits(task_desc.text)
+            elevation: 0
+
+        MDFlatButton:
+            text: "CANCEL"
+            pos_hint: {"x": 0.45, "center_y": .25}
+            on_release: app.active_dialog.dismiss()
+
+        MDIconButton:
+            theme_icon_color: "Custom"
+            icon: "trash-can-outline"
+            icon_color: "#ff0000"
+            pos_hint: {"x": 0.85, "center_y": .25}
+            on_press: app.delete_qt()
+
+<QuickToDoItem>:
+    id: item
+    on_press: 
+        app.open_edit_qt_dialog(item.text)
+        app.current_quick = item
+
+    RightCheckbox:
+        id: status
+        active: 0
+        on_press: app.save_qt_checkbox(item)
+
+MDScreen:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            
+        MDBottomNavigation:
+            id: app_home
+            text_color_normal: "929BA3"
+            text_color_active: "22252E"
+            panel_color: "F5FAFA"
+            transition: SlideTransition
+            transition_duration: .5
+            opacity: 0
+
+            MDBottomNavigationItem:
+                name: "screen"
+                icon: "home"
+                text: "Tasks"
+                md_bg_color: "F5FAFA" 
+                on_tab_press:
+                    app.active_page = "Home"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+
+                    # SECTION FOR BANNER
+                    MDFloatLayout:
+                        id: header
+                        size_hint: 1, .2
+                            
+                        Image:
+                            id: image_header
+                            pos_hint: {"center_x":.5, "center_y":.5}
+                            size_hint: None, None
+                            size: self.parent.size
+                            allow_stretch: True
+                            keep_ratio: False
+
+                        MDLabel:
+                            id: header_text
+                            markup: True
+                            font_size: dp(25)
+                            font_style: "H3"
+                            text: "[b]Tasks[/b]"
+                            color: "FFFFFF"
+                            pos_hint: {"center_x": .56, "center_y": .35}
+
+                        MDIconButton:
+                            theme_icon_color: "Custom"
+                            icon: "dots-vertical"
+                            icon_color: "#FFFFFF"
+                            pos_hint: {"center_x": .9, "center_y": .725}
+                            on_press: app.open_background_dialog()
+
+                    # SECTION FOR HEADER
+                    MDFloatLayout:
+                        size_hint: 1, .05
+                        md_bg_color: "FFFFFF"
+
+                        MDLabel:
+                            id: ongoing_task_header
+                            text: ""
+                            color: "22252E"
+                            pos_hint: {"x":.06, "center_y":.5}
+
+                    # SECTION FOR TASKS
+                    MDScrollView:
+                        size_hint_y: .73
+                        do_scroll_y: True
+                        do_scroll_x: False
+
+                        MDGridLayout:
+                            id: container
+                            cols: 1
+                            spacing: dp(30), dp(5)
+                            padding: dp(25), dp(25)
+                            size_hint_x: None
+                            size_hint_y: None
+                            size: (root.width, root.height)
+                            height: self.minimum_height
+                
+                MDFloatingActionButton:
+                    id: task_create
+                    icon: "plus"
+                    elevation: 0
+                    md_bg_color: app.accent
+                    pos_hint: {"x":.8, "center_y":.075}
+                    on_press: app.open_create_task_dialog()
+
+            MDBottomNavigationItem:
+                name: "screen 2"
+                icon: "calendar"
+                text: "Calendar"
+                md_bg_color: "F5FAFA"
+                on_tab_press:
+                    app.active_page = "Calendar"
+                    # Thread(app.on_day_button_pressed(app.today)).start()
+                    date_tasks.clear_widgets()
+                    bar_date_calendar.text =  "No Date Selected"
+                    
+                MDBoxLayout:
+                    orientation: "vertical"
+                    padding: dp(5), dp(22.5)
+
+                    MDGridLayout:
+                        id: calendar_buttons
+                        cols: 7
+                        rows: 2
+                        size_hint: 1, 0.225
+
+                    MDGridLayout:
+                        id: calendar_grid
+                        cols: 7
+                        rows: 8
+                        size_hint: 1, .65
+
+                    MDFloatLayout:
+                        size_hint: 1, .05
+                        md_bg_color: "FFFFFF"
+
+                        MDLabel:
+                            id: bar_date_calendar
+                            color: "22252E"
+                            pos_hint: {"x":.05, "center_y":.5}
+
+                    ScrollView:
+                        size_hint: 1, .3
+                        do_scroll_y: True
+                        do_scroll_x: False
+
+                        GridLayout:
+                            spacing: dp(30), dp(5)
+                            padding: dp(30), dp(30)
+                            id: date_tasks
+                            size: (root.width, root.height)
+                            size_hint_x: None
+                            size_hint_y: None
+                            cols: 1
+                            height: self.minimum_height
+
+                            MDLabel:
+                                text: "None"
+
+            MDBottomNavigationItem:
+                name: "screen 3"
+                icon: "note"
+                text: "Quick"
+                md_bg_color: "F5FAFA" 
+                on_tab_press:
+                    app.active_page = "Quick"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+
+                    MDLabel:
+                        size_hint: 1, .03
+                    
+                    MDBoxLayout:
+                        padding: 25
+                        size_hint: 1, .125
+                        pos_hint: {"center_x": .5, "center_y": .95}
+
+                        MDLabel:
+                            markup: True
+                            text: "  [b]Quick Tasks[/b]"
+                            font_style: "H3"
+                            font_size: dp(30)
+                            color: "22252E"
+                            spacing: dp(50), dp(50)
+
+                    # SCROLL VIEW FOR TASKS
+                    MDScrollView:
+                        size_hint: 1, .925
+                        pos_hint: {"center_x": .475}
+
+                        MDList:
+                            id: quick_container
+
+                MDFloatingActionButton:
+                    icon: "plus"
+                    elevation: 0
+                    id: qt_create_btn
+                    md_bg_color: app.accent
+                    pos_hint: {"x":.8, "center_y":.075}
+                    on_press: app.open_create_qt_dialog()
+        
